@@ -1,0 +1,212 @@
+{
+  "name": "Rag agent-2",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "3cfc0d7c-ef54-4fa5-a688-917f5cec279c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        128,
+        224
+      ],
+      "id": "b9a92376-a7c1-4732-a9ce-130e90ba7dec",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "FibEkzq89lAhTxkX",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Webhook').item.json.headers['x-forwarded-host'] }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        224
+      ],
+      "id": "fe2f353b-3a51-4b82-af59-2d860ecea40c",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        512,
+        464
+      ],
+      "id": "e98d68fb-7090-4e80-8a58-097c8866a964",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "FibEkzq89lAhTxkX",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "portfolioknowledgebase",
+        "toolDescription": "retrives data when user asks for relevant data about portfolio and gives a well structured and simple answer according to user query",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "portfolio",
+          "mode": "list",
+          "cachedResultName": "portfolio"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.1,
+      "position": [
+        544,
+        288
+      ],
+      "id": "3d7152f2-087c-470a-a7fd-6f7972c06c61",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "zq0bEWQd9OnswmRs",
+          "name": "PineconeApi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "b9d47ac1-3462-4a10-9a94-0e33fc946541",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        0
+      ],
+      "id": "978c2a4d-e6a4-45e3-bd46-d4549e17a591",
+      "name": "Webhook",
+      "webhookId": "b9d47ac1-3462-4a10-9a94-0e33fc946541"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [
+        592,
+        0
+      ],
+      "id": "95136274-3dd7-4594-b7d6-dafe821da32f",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "97903e8a-924f-46ca-8b50-3741ea45e37c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b3b467644dfa8e0c6797928cc6d8bf68d9415ef612f9ba2a0d45772e9aff0f75"
+  },
+  "id": "jFXJyjfOwd9NF3rr",
+  "tags": []
+}
